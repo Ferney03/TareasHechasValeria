@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tareas con MVC y Bootstrap</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Agregar Tarea</h5>
+          <div class="form-group">
+            <label for="taskInput">Nueva Tarea:</label>
+            <input type="text" class="form-control" id="taskInput" placeholder="Ingrese una tarea">
+          </div>
+          <button class="btn btn-primary" id="addTaskBtn"> Agregar Tarea 📃 </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Lista de Tareas</h5>
+          <ul id="taskList" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Modelo
+  class TaskModel {
+    constructor() {
+      this.tasks = [];
+    }
+
+    addTask(task) {
+      this.tasks.push({ text: task, completed: false });
+    }
+
+    toggleTask(index) {
+      this.tasks[index].completed = !this.tasks[index].completed;
+    }
+
+    getTasks() {
+      return this.tasks;
+    }
+  }
+
+  // Vista
+  class TaskView {
+    constructor() {
+      this.taskList = document.getElementById("taskList");
+    }
+
+    renderTasks(tasks, clickHandler) {
+      this.taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.textContent = task.text;
+        li.className = "list-group-item";
+        if (task.completed) {
+          li.classList.add("list-group-item-success");
+        }
+        li.addEventListener("click", () => {
+          clickHandler(index);
+        });
+        this.taskList.appendChild(li);
+      });
+    }
+  }
+
+  // Controlador
+  class TaskController {
+    constructor(model, view) {
+      this.model = model;
+      this.view = view;
+    }
+
+    addTask(task) {
+      this.model.addTask(task);
+      const tasks = this.model.getTasks();
+      this.view.renderTasks(tasks, (index) => this.toggleTask(index));
+    }
+
+    toggleTask(index) {
+      this.model.toggleTask(index);
+      const tasks = this.model.getTasks();
+      this.view.renderTasks(tasks, (index) => this.toggleTask(index));
+    }
+  }
+
+  // Instancias
+  const model = new TaskModel();
+  const view = new TaskView();
+  const controller = new TaskController(model, view);
+
+  // Evento de usuario (hacer clic en el botón)
+  const addTaskBtn = document.getElementById("addTaskBtn");
+  addTaskBtn.addEventListener("click", () => {
+    const taskInput = document.getElementById("taskInput");
+    const task = taskInput.value;
+    if (task.trim() !== "") {
+      controller.addTask(task);
+    }
+    taskInput.value = "";
+  });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
